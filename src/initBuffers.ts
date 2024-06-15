@@ -1,5 +1,5 @@
 import {Buffers, Gl} from "./types";
-import {Cube} from "./classes";
+import {Prism} from "./classes";
 
 export function initBuffers(gl: Gl): Buffers {
     return {
@@ -18,7 +18,7 @@ function initPositionBuffer(gl: Gl) {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
     // Now create an array of positions for the square.
-    const positions = Cube.All.map(generateCubeVertices).flat();
+    const positions = Prism.All.map(generateCubeVertices).flat();
 
     // Now pass the list of positions into WebGL to build the
     // shape. We do this by creating a Float32Array from the
@@ -32,7 +32,7 @@ function initColorIndexBuffer(gl: Gl) {
     const colorIndexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorIndexBuffer);
 
-    const colorIndices = Cube.All.map(cube =>
+    const colorIndices = Prism.All.map(cube =>
         cube.colour.map(colour =>
             new Array(4).fill(colour))
     ).flat(2);
@@ -50,7 +50,7 @@ function initVertexIndexBuffer(gl: Gl) {
     // indices into the vertex array to specify each triangle's
     // position.
     // Allows reusing of the vertices
-    const indices = Cube.All.map((_, i) => generateCubeVertexIndicies(i)).flat();
+    const indices = Prism.All.map((_, i) => generateCubeVertexIndicies(i)).flat();
 
     // Now send the element array to GL
 
@@ -63,7 +63,7 @@ function initVertexIndexBuffer(gl: Gl) {
     return indexBuffer;
 }
 
-function generateCubeVertices(cube: Cube) {
+function generateCubeVertices(cube: Prism) {
     const {position, size} = cube;
     const {x: x1, y: y1, z: z1} = position;
     const {x: x2, y: y2, z: z2} = position.add(size);

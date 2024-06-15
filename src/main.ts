@@ -4,20 +4,21 @@ import vsh from "~/shaders/shader.vsh?raw";
 import {Gl, ProgramInfo} from "./types";
 import {initBuffers} from "./initBuffers";
 import {drawScene} from "./drawScene";
-import {Cube, Vec3} from "./classes";
+import {Player, Prism, Vec3} from "./classes";
 
 const movementSpeed = 4;
 const mouseSense = 1.8;
 
 let deltaTime = 0;
 
-const rotation = new Vec3(0.5, 0.5, 0);
-const position = new Vec3(4, -4, -6);
+const player = new Player(new Vec3(8, -4, -12), new Vec3(-.1, 0.5, 0))
+
 const heldKeys: {[key: string]: boolean} = {};
 
-new Cube(new Vec3(3, 0, 0), new Vec3(2,2,2));
-new Cube(new Vec3(0, 0, 0), new Vec3(1,1,1), 3);
-new Cube(new Vec3(-5, 0, 0), new Vec3(3,6,3), [1,1,1,2,2,2]);
+new Prism(new Vec3(3, 0, 0), new Vec3(2,2,2));
+new Prism(new Vec3(0, 0, 0), new Vec3(1,1,1), 3);
+new Prism(new Vec3(-5, 0, 0), new Vec3(3,6,3), [1,1,1,2,2,2]);
+new Prism(new Vec3(-20, 0, -20), new Vec3(40,0,40), [0,0,0,0,0,0]);
 
 main();
 
@@ -26,8 +27,8 @@ document.addEventListener('click', () => {
 });
 
 function updatePosition(e: MouseEvent) {
-    rotation.x += e.movementY * mouseSense * 0.001;
-    rotation.y += e.movementX * mouseSense * 0.001;
+    player.rotation.x += e.movementY * mouseSense * 0.001;
+    player.rotation.y += e.movementX * mouseSense * 0.001;
 }
 
 document.addEventListener('pointerlockchange', () => {
@@ -91,33 +92,33 @@ function main() {
         deltaTime = now - then;
         then = now;
 
-        const x = Math.sin(-rotation.y) * deltaTime * movementSpeed;
-        const z = Math.cos(-rotation.y) * deltaTime * movementSpeed;
+        const x = Math.sin(-player.rotation.y) * deltaTime * movementSpeed;
+        const z = Math.cos(-player.rotation.y) * deltaTime * movementSpeed;
 
         if (heldKeys["w"]) {
-            position.x += x;
-            position.z += z;
+            player.position.x += x;
+            player.position.z += z;
         }
         if (heldKeys["s"]) {
-            position.x -= x;
-            position.z -= z;
+            player.position.x -= x;
+            player.position.z -= z;
         }
         if (heldKeys["a"]) {
-            position.x += z;
-            position.z -= x;
+            player.position.x += z;
+            player.position.z -= x;
         }
         if (heldKeys["d"]) {
-            position.x -= z;
-            position.z += x;
+            player.position.x -= z;
+            player.position.z += x;
         }
         if (heldKeys[" "]) {
-            position.y -= deltaTime * movementSpeed;
+            player.position.y -= deltaTime * movementSpeed;
         }
         if (heldKeys["Shift"]) {
-            position.y += deltaTime * movementSpeed;
+            player.position.y += deltaTime * movementSpeed;
         }
 
-        drawScene(gl, programInfo, buffers, rotation, position);
+        drawScene(gl, programInfo, buffers, player.rotation, player.position);
 
         requestAnimationFrame(render);
     }

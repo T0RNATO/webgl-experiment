@@ -1,6 +1,7 @@
 import {Buffers, Gl, ProgramInfo} from "./types";
 import {mat4} from "gl-matrix";
-import {Cube, Vec3} from "./classes";
+import {Prism, Vec3} from "./classes";
+import {toRGB} from "./utils";
 
 export function drawScene(gl: Gl, programInfo: ProgramInfo, buffers: Buffers, rotation: Vec3, position: Vec3) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
@@ -81,16 +82,17 @@ export function drawScene(gl: Gl, programInfo: ProgramInfo, buffers: Buffers, ro
         modelViewMatrix,
     );
     gl.uniform4fv(programInfo.uniformLocations.vertexColor, new Float32Array([
-        1.0, 1.0, 1.0, 1.0, // Front face: white
-        1.0, 0.0, 0.0, 1.0, // Back face: red
-        0.0, 1.0, 0.0, 1.0, // Top face: green
-        0.0, 0.0, 1.0, 1.0, // Bottom face: blue
-        1.0, 1.0, 0.0, 1.0, // Right face: yellow
-        1.0, 0.0, 1.0, 1.0, // Left face: purple
-    ]))
+        "#1e1e1e",
+        "#b20000",
+        "#009dff",
+        "#8fff45",
+        "#8328d7",
+        "#de6009",
+        "#debb09",
+    ].map(toRGB).flat()))
 
     {
-        const vertexCount = 36 * Cube.All.length;
+        const vertexCount = 36 * Prism.All.length;
         const type = gl.UNSIGNED_SHORT;
         const offset = 0;
         gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);

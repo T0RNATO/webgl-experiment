@@ -3,7 +3,7 @@ attribute float aVertexColorIndex;
 
 uniform mat4 uModelViewMatrix;
 uniform mat4 uProjectionMatrix;
-uniform vec4 uColorBuffer[6];
+uniform vec4 uColorBuffer[7];
 
 varying lowp vec4 vColor;
 
