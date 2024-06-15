@@ -15,6 +15,10 @@ const rotation = new Vec3(0.5, 0.5, 0);
 const position = new Vec3(4, -4, -6);
 const heldKeys: {[key: string]: boolean} = {};
 
+new Cube(new Vec3(3, 0, 0), new Vec3(2,2,2));
+new Cube(new Vec3(0, 0, 0), new Vec3(1,1,1), 3);
+new Cube(new Vec3(-5, 0, 0), new Vec3(3,6,3), [1,1,1,2,2,2]);
+
 main();
 
 document.addEventListener('click', () => {

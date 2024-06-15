@@ -1,6 +1,6 @@
 import {Buffers, Gl, ProgramInfo} from "./types";
 import {mat4} from "gl-matrix";
-import {Vec3} from "./classes";
+import {Cube, Vec3} from "./classes";
 
 export function drawScene(gl: Gl, programInfo: ProgramInfo, buffers: Buffers, rotation: Vec3, position: Vec3) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
@@ -90,7 +90,7 @@ export function drawScene(gl: Gl, programInfo: ProgramInfo, buffers: Buffers, ro
     ]))
 
     {
-        const vertexCount = 36;
+        const vertexCount = 36 * Cube.All.length;
         const type = gl.UNSIGNED_SHORT;
         const offset = 0;
         gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
