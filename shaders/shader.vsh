@@ -1,12 +1,13 @@
 attribute vec4 aVertexPosition;
-attribute vec4 aVertexColor;
+attribute float aVertexColorIndex;
 
 uniform mat4 uModelViewMatrix;
 uniform mat4 uProjectionMatrix;
+uniform vec4 uColorBuffer[6];
 
 varying lowp vec4 vColor;
 
 void main(void) {
   gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-  vColor = aVertexColor;
+  vColor = uColorBuffer[int(aVertexColorIndex)];
 }

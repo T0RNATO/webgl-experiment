@@ -61,7 +61,7 @@ export function drawScene(gl: Gl, programInfo: ProgramInfo, buffers: Buffers, ro
     // Tell WebGL how to pull out the positions from the position
     // buffer into the vertexPosition attribute.
     setPositionAttribute(gl, buffers, programInfo);
-    setColorAttribute(gl, buffers, programInfo);
+    setColorIndexAttribute(gl, buffers, programInfo);
 
     // Tell WebGL which indices to use to index the vertices
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
@@ -80,6 +80,14 @@ export function drawScene(gl: Gl, programInfo: ProgramInfo, buffers: Buffers, ro
         false,
         modelViewMatrix,
     );
+    gl.uniform4fv(programInfo.uniformLocations.vertexColor, new Float32Array([
+        1.0, 1.0, 1.0, 1.0, // Front face: white
+        1.0, 0.0, 0.0, 1.0, // Back face: red
+        0.0, 1.0, 0.0, 1.0, // Top face: green
+        0.0, 0.0, 1.0, 1.0, // Bottom face: blue
+        1.0, 1.0, 0.0, 1.0, // Right face: yellow
+        1.0, 0.0, 1.0, 1.0, // Left face: purple
+    ]))
 
     {
         const vertexCount = 36;
@@ -110,22 +118,20 @@ function setPositionAttribute(gl: Gl, buffers: Buffers, programInfo: ProgramInfo
     gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
 }
 
-// Tell WebGL how to pull out the colors from the color buffer
-// into the vertexColor attribute.
-function setColorAttribute(gl: Gl, buffers: Buffers, programInfo: ProgramInfo) {
-    const numComponents = 4;
-    const type = gl.FLOAT;
+function setColorIndexAttribute(gl: Gl, buffers: Buffers, programInfo: ProgramInfo) {
+    const numComponents = 2;
+    const type = gl.UNSIGNED_BYTE;
     const normalize = false;
     const stride = 0;
     const offset = 0;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.colorIndex);
     gl.vertexAttribPointer(
-        programInfo.attribLocations.vertexColor,
+        programInfo.attribLocations.vertexColorIndex,
         numComponents,
         type,
         normalize,
         stride,
         offset,
     );
-    gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
+    gl.enableVertexAttribArray(programInfo.attribLocations.vertexColorIndex);
 }

@@ -1,14 +1,10 @@
 import {Buffers, Gl} from "./types";
 
 export function initBuffers(gl: Gl): Buffers {
-    const positionBuffer = initPositionBuffer(gl);
-    const colorBuffer = initColorBuffer(gl);
-    const indexBuffer = initIndexBuffer(gl);
-
     return {
-        position: positionBuffer,
-        color: colorBuffer,
-        indices: indexBuffer,
+        position: initPositionBuffer(gl),
+        indices: initVertexIndexBuffer(gl),
+        colorIndex: initColorIndexBuffer(gl),
     };
 }
 
@@ -22,18 +18,12 @@ function initPositionBuffer(gl: Gl) {
 
     // Now create an array of positions for the square.
     const positions = [
-        // Front face
-        -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
-        // Back face
-        -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0,
-        // Top face
-        -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,
-        // Bottom face
-        -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
-        // Right face
-        1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
-        // Left face
-        -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0,
+        -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,     // Front face
+        -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, // Back face
+        -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,     // Top face
+        -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0, // Bottom face
+        1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,     // Right face
+        -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, // Left face
     ];
 
     // Now pass the list of positions into WebGL to build the
@@ -44,40 +34,27 @@ function initPositionBuffer(gl: Gl) {
     return positionBuffer;
 }
 
-function initColorBuffer(gl: Gl) {
-    const faceColors = [
-        [1.0, 1.0, 1.0, 1.0], // Front face: white
-        [1.0, 0.0, 0.0, 1.0], // Back face: red
-        [0.0, 1.0, 0.0, 1.0], // Top face: green
-        [0.0, 0.0, 1.0, 1.0], // Bottom face: blue
-        [1.0, 1.0, 0.0, 1.0], // Right face: yellow
-        [1.0, 0.0, 1.0, 1.0], // Left face: purple
+function initColorIndexBuffer(gl: Gl) {
+    const colorIndexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorIndexBuffer);
+
+    const colorIndices = [
+        0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5
     ];
 
-    // Convert the array of colors into a table for all the vertices.
-    let colors: number[] = [];
+    gl.bufferData(gl.ARRAY_BUFFER, new Uint16Array(colorIndices), gl.STATIC_DRAW);
 
-    for (let j = 0; j < faceColors.length; ++j) {
-        const c = faceColors[j];
-        // Repeat each color four times for the four vertices of the face
-        colors = colors.concat(c, c, c, c);
-    }
-
-    const colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-
-    return colorBuffer;
+    return colorIndexBuffer;
 }
 
-function initIndexBuffer(gl: Gl) {
+function initVertexIndexBuffer(gl: Gl) {
     const indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
     // This array defines each face as two triangles, using the
     // indices into the vertex array to specify each triangle's
     // position.
-
+    // Allows reusing of the vertices
     const indices = [
         0,1,2,0,2,3, // front
         4,5,6,4,6,7, // back

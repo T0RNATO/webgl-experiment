@@ -4,15 +4,15 @@ import vsh from "~/shaders/shader.vsh?raw";
 import {Gl, ProgramInfo} from "./types";
 import {initBuffers} from "./initBuffers";
 import {drawScene} from "./drawScene";
-import {Vec3} from "./classes";
+import {Cube, Vec3} from "./classes";
 
 const movementSpeed = 4;
 const mouseSense = 1.8;
 
 let deltaTime = 0;
 
-const rotation = new Vec3(0, 0, 0);
-const position = new Vec3(0, 0, -6);
+const rotation = new Vec3(0.5, 0.5, 0);
+const position = new Vec3(4, -4, -6);
 const heldKeys: {[key: string]: boolean} = {};
 
 main();
@@ -69,9 +69,10 @@ function main() {
         program: shaderProgram,
         attribLocations: {
             vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
-            vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
+            vertexColorIndex: gl.getAttribLocation(shaderProgram, "aVertexColorIndex"),
         },
         uniformLocations: {
+            vertexColor: gl.getUniformLocation(shaderProgram, "uColorBuffer"),
             projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
             modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
         },

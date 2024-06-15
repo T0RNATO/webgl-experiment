@@ -4,9 +4,10 @@ export type ProgramInfo = {
     program: WebGLProgram;
     attribLocations: {
         vertexPosition: number;
-        vertexColor: number;
+        vertexColorIndex: number;
     };
     uniformLocations: {
+        vertexColor: WebGLUniformLocation;
         projectionMatrix: WebGLUniformLocation;
         modelViewMatrix: WebGLUniformLocation;
     };
