@@ -2,14 +2,11 @@ export type Gl = WebGLRenderingContext;
 
 export type ProgramInfo = {
     program: WebGLProgram;
-    attribLocations: {
-        vertexPosition: number;
-        vertexColorIndex: number;
+    attributes: {
+        [key: string]: number
     };
-    uniformLocations: {
-        vertexColor: WebGLUniformLocation;
-        projectionMatrix: WebGLUniformLocation;
-        modelViewMatrix: WebGLUniformLocation;
+    uniforms: {
+        [key: string]: WebGLUniformLocation;
     };
 };
 

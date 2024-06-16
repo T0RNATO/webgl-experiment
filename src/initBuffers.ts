@@ -1,28 +1,29 @@
 import {Buffers, Gl} from "./types";
 import {Prism} from "./classes";
+import {nullCheck} from "./utils";
 
 export function initBuffers(gl: Gl): Buffers {
+    const positionBuffer = initPositionBuffer(gl);
+    const vertexIndexBuffer = initVertexIndexBuffer(gl);
+    const colorIndexBuffer = initColorIndexBuffer(gl);
+    nullCheck(positionBuffer, "positionBuffer is null.");
+    nullCheck(vertexIndexBuffer, "vertexIndexBuffer is null.");
+    nullCheck(colorIndexBuffer, "colorIndexBuffer is null.");
+
     return {
-        position: initPositionBuffer(gl),
-        indices: initVertexIndexBuffer(gl),
-        colorIndex: initColorIndexBuffer(gl),
+        position: positionBuffer,
+        indices: vertexIndexBuffer,
+        colorIndex: colorIndexBuffer,
     };
 }
 
 function initPositionBuffer(gl: Gl) {
-    // Create a buffer for the square's positions.
     const positionBuffer = gl.createBuffer();
 
-    // Select the positionBuffer as the one to apply buffer
-    // operations to from here out.
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-    // Now create an array of positions for the square.
     const positions = Prism.All.map(generateCubeVertices).flat();
 
-    // Now pass the list of positions into WebGL to build the
-    // shape. We do this by creating a Float32Array from the
-    // JavaScript array, then use it to fill the current buffer.
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
     return positionBuffer;
@@ -46,13 +47,7 @@ function initVertexIndexBuffer(gl: Gl) {
     const indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
-    // This array defines each face as two triangles, using the
-    // indices into the vertex array to specify each triangle's
-    // position.
-    // Allows reusing of the vertices
-    const indices = Prism.All.map((_, i) => generateCubeVertexIndicies(i)).flat();
-
-    // Now send the element array to GL
+    const indices = Prism.All.map((_, i) => generateCubeVertexIndices(i)).flat();
 
     gl.bufferData(
         gl.ELEMENT_ARRAY_BUFFER,
@@ -78,7 +73,8 @@ function generateCubeVertices(cube: Prism) {
     ]
 }
 
-function generateCubeVertexIndicies(i: number) {
+function generateCubeVertexIndices(i: number) {
+    // Defines each face as 6 vertices, two triangles, using vertex ids.
     return [
         0,1,2,0,2,3, // front
         4,5,6,4,6,7, // back

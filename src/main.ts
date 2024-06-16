@@ -5,6 +5,7 @@ import {Gl, ProgramInfo} from "./types";
 import {initBuffers} from "./initBuffers";
 import {drawScene} from "./drawScene";
 import {Player, Prism, Vec3} from "./classes";
+import {nullCheck} from "./utils";
 
 const movementSpeed = 4;
 const mouseSense = 1.8;
@@ -19,6 +20,22 @@ new Prism(new Vec3(3, 0, 0), new Vec3(2,2,2));
 new Prism(new Vec3(0, 0, 0), new Vec3(1,1,1), 3);
 new Prism(new Vec3(-5, 0, 0), new Vec3(3,6,3), [1,1,1,2,2,2]);
 new Prism(new Vec3(-20, 0, -20), new Vec3(40,0,40), [0,0,0,0,0,0]);
+
+export const programInfo: ProgramInfo = {
+    program: undefined as unknown as WebGLProgram,
+    attributes: {},
+    uniforms: {},
+};
+
+function addAttribute(gl: Gl, name: string) {
+    programInfo.attributes[name] = gl.getAttribLocation(programInfo.program, name);
+}
+
+function addUniform(gl: Gl, name: string) {
+    const uniform = gl.getUniformLocation(programInfo.program, name);
+    nullCheck(uniform, `Failed to get uniform location for ${name}`);
+    programInfo.uniforms[name] = uniform;
+}
 
 main();
 
@@ -52,41 +69,28 @@ function main() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const gl: WebGLRenderingContext = canvas.getContext("webgl");
-
-    if (gl === null) {
-        alert("Unable to initialize WebGL. Your browser or machine may not support it.");
-        return;
-    }
+    const gl = canvas.getContext("webgl");
+    nullCheck(gl, "Failed to initialize WebGL");
 
     // Set clear color to black, fully opaque
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     // Clear the color buffer with specified clear color
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    const shaderProgram: WebGLProgram = initShaderProgram(gl, vsh, fsh);
+    const shaderProgram = initShaderProgram(gl, vsh, fsh);
+    nullCheck(shaderProgram, "Failed to initialize shader program");
 
-    // Collect all the info needed to use the shader program.
-    // Look up which attributes our shader program is using
-    // for aVertexPosition, aVertexColor and also
-    // look up uniform locations.
-    const programInfo: ProgramInfo = {
-        program: shaderProgram,
-        attribLocations: {
-            vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
-            vertexColorIndex: gl.getAttribLocation(shaderProgram, "aVertexColorIndex"),
-        },
-        uniformLocations: {
-            vertexColor: gl.getUniformLocation(shaderProgram, "uColorBuffer"),
-            projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
-            modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
-        },
-    };
+    programInfo.program = shaderProgram;
+    addAttribute(gl, "aVertexPosition");
+    addAttribute(gl, "aVertexColorIndex");
+
+    addUniform(gl, "uProjectionMatrix");
+    addUniform(gl, "uModelViewMatrix");
+    addUniform(gl, "uColorBuffer");
 
     const buffers = initBuffers(gl);
     let then = 0;
 
-    // Draw the scene repeatedly
     function render(now: number) {
         now *= 0.001; // convert to seconds
         deltaTime = now - then;
@@ -118,7 +122,7 @@ function main() {
             player.position.y += deltaTime * movementSpeed;
         }
 
-        drawScene(gl, programInfo, buffers, player.rotation, player.position);
+        drawScene(gl as WebGLRenderingContext, buffers, player.rotation, player.position);
 
         requestAnimationFrame(render);
     }
@@ -126,22 +130,21 @@ function main() {
 }
 
 function initShaderProgram(gl: Gl, vsSource: string, fsSource: string) {
-    const vertexShader: WebGLShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
-    const fragmentShader: WebGLShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+    const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+    const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+    nullCheck(vertexShader, "Failed to initialize vertex shader");
+    nullCheck(fragmentShader, "Failed to initialize fragment shader");
 
     const shaderProgram = gl.createProgram();
+    nullCheck(shaderProgram, "Failed to initialize shader program");
 
-    if (!shaderProgram) {
-        return null;
-    }
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
     gl.linkProgram(shaderProgram);
 
     // If creating the shader program failed
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-        alert(`Unable to initialize the shader program: ${gl.getProgramInfoLog(shaderProgram)}`);
-        return null;
+        throw new Error(`Unable to initialize the shader program: ${gl.getProgramInfoLog(shaderProgram)}`);
     }
 
     return shaderProgram;
@@ -154,15 +157,13 @@ function loadShader(gl: Gl, type: number, source: string) {
     if (!shader) {
         return null;
     }
-    // Send the source to the shader object
+
     gl.shaderSource(shader, source);
 
-    // Compile the shader program
     gl.compileShader(shader);
 
-    // See if it compiled successfully
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        alert(`An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}`);
+        console.error(`An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}`);
         gl.deleteShader(shader);
         return null;
     }
