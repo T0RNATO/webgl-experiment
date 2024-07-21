@@ -29,6 +29,14 @@ function initPositionBuffer(gl: Gl) {
     return positionBuffer;
 }
 
+export function updatePositionBuffer(gl: Gl, buffers: Buffers) {
+    const positions = Prism.All.map(generateCubeVertices).flat();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(positions));
+}
+
 function initColorIndexBuffer(gl: Gl) {
     const colorIndexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorIndexBuffer);
